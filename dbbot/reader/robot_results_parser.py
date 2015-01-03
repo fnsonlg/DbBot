@@ -102,12 +102,11 @@ class RobotResultsParser(object):
         self._verbose('`--> Parsing suite: %s' % suite.name)
         # try:
         suite_id = self._db.insert('suites', {
-            'suite_id': parent_suite_id,
+            'suite_id': suite.id,
             'xml_id': suite.id,
             'name': suite.name,
             'source': suite.source,
             'doc': suite.doc
-
         })
         # except IntegrityError:
         #     suite_id = self._db.fetch_id('suites', {

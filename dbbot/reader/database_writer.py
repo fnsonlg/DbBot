@@ -177,8 +177,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             definitions.append('CONSTRAINT unique_%s UNIQUE (%s)' % (
                 table_name, unique_column_names)
             )
-        table_name_complete = self.application_name + '_' + table_name
-        sql_statement = 'CREATE TABLE IF NOT EXISTS %s (%s)' % (table_name_complete, ', '.join(definitions))
+        table_name = self.application_name + "_" + table_name
+        sql_statement = 'CREATE TABLE IF NOT EXISTS %s (%s)' % (table_name, ', '.join(definitions))
         self._connection.execute(sql_statement)
 
     def rename_table(self, old_name, new_name):
