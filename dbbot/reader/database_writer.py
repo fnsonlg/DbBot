@@ -14,14 +14,18 @@
 from dbbot import RobotDatabase
 
 
-class DatabaseWriter(RobotDatabase):
+class SQLLiteDatabaseWriter(RobotDatabase):
+    application_name = ''
 
-    def __init__(self, db_file_path, verbose_stream):
-        super(DatabaseWriter, self).__init__(db_file_path, verbose_stream)
+    def __init__(self, db_file_path, verbose_stream,application_name):
+        self.application_name = application_name
+        super(SQLLiteDatabaseWriter, self).__init__(db_file_path, verbose_stream)
         self._init_schema()
 
     def _init_schema(self):
         self._verbose('- Initializing database schema')
+        self._create_table_projects()
+        self._create_table_applications()
         self._create_table_test_runs()
         self._create_table_test_run_status()
         self._create_table_test_run_errors()
@@ -74,12 +78,29 @@ class DatabaseWriter(RobotDatabase):
 
     def _create_table_suites(self):
         self._create_table('suites', {
-            'suite_id': 'INTEGER REFERENCES suites',
+            'suite_id': 'INTEGER  NOT NULL REFERENCES suites',
             'xml_id': 'TEXT NOT NULL',
             'name': 'TEXT NOT NULL',
             'source': 'TEXT',
-            'doc': 'TEXT'
+            'doc': 'TEXT',
+            'application_id': 'TEXT'
         }, ('name', 'source'))
+
+    def _create_table_applications(self):
+        self._create_table('applications', {
+            'application_id': 'INTEGER NOT NULL REFERENCES applications',
+            'applicatoin_name': 'TEXT',
+            'framework_name': 'TEXT',
+            'jira_link': 'TEXT',
+            'git_link': 'TEXT',
+            'project_id': 'INTEGER NOT NULL REFERENCES projects'
+        })
+
+    def _create_table_projects(self):
+        self._create_table('projects', {
+            'project_id': 'INTEGER NOT NULL REFERENCES projects',
+            'project_name': 'TEXT'
+        })
 
     def _create_table_suite_status(self):
         self._create_table('suite_status', {
@@ -156,7 +177,8 @@ class DatabaseWriter(RobotDatabase):
             definitions.append('CONSTRAINT unique_%s UNIQUE (%s)' % (
                 table_name, unique_column_names)
             )
-        sql_statement = 'CREATE TABLE IF NOT EXISTS %s (%s)' % (table_name, ', '.join(definitions))
+        table_name_complete = self.application_name + '_' + table_name
+        sql_statement = 'CREATE TABLE IF NOT EXISTS %s (%s)' % (table_name_complete, ', '.join(definitions))
         self._connection.execute(sql_statement)
 
     def rename_table(self, old_name, new_name):
@@ -178,7 +200,8 @@ class DatabaseWriter(RobotDatabase):
         self._connection.execute(sql_statement)
 
     def fetch_id(self, table_name, criteria):
-        sql_statement = 'SELECT id FROM %s WHERE ' % table_name
+        table_name_complete = self.application_name + '_' + table_name
+        sql_statement = 'SELECT id FROM %s WHERE ' % table_name_complete
         sql_statement += ' AND '.join('%s=?' % key for key in criteria.keys())
         res = self._connection.execute(sql_statement, criteria.values()).fetchone()
         if not res:
@@ -187,16 +210,19 @@ class DatabaseWriter(RobotDatabase):
         return res[0]
 
     def insert(self, table_name, criteria):
-        sql_statement = self._format_insert_statement(table_name, criteria.keys())
+        table_name_complete = self.application_name + '_' + table_name
+        sql_statement = self._format_insert_statement(table_name_complete, criteria.keys())
         cursor = self._connection.execute(sql_statement, criteria.values())
         return cursor.lastrowid
 
     def insert_or_ignore(self, table_name, criteria):
-        sql_statement = self._format_insert_statement(table_name, criteria.keys(), 'IGNORE')
+        table_name_complete = self.application_name + '_' + table_name
+        sql_statement = self._format_insert_statement(table_name_complete, criteria.keys(), 'IGNORE')
         self._connection.execute(sql_statement, criteria.values())
 
     def insert_many_or_ignore(self, table_name, column_names, values):
-        sql_statement = self._format_insert_statement(table_name, column_names, 'IGNORE')
+        table_name_complete = self.application_name + '_' + table_name
+        sql_statement = self._format_insert_statement(table_name_complete, column_names, 'IGNORE')
         self._connection.executemany(sql_statement, values)
 
     def _format_insert_statement(self, table_name, column_names, on_conflict='ABORT'):

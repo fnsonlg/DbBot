@@ -19,7 +19,7 @@ import sys
 sys.path.append(os.path.abspath(__file__ + '/../..'))
 
 from dbbot import CommandLineOptions
-from dbbot.reader import DatabaseWriter
+from dbbot.reader import SQLLiteDatabaseWriter
 
 
 class MigratorOptions(CommandLineOptions):
@@ -38,7 +38,7 @@ class Migrate27to28(object):
     def __init__(self):
         self._options = MigratorOptions()
         verbose_stream = sys.stdout if self._options.be_verbose else None
-        self._db = DatabaseWriter(self._options.db_file_path, verbose_stream)
+        self._db = SQLLiteDatabaseWriter(self._options.db_file_path, verbose_stream)
 
     def run(self):
         try:

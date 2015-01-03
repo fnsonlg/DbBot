@@ -16,6 +16,7 @@ from os.path import exists
 
 
 DEFAULT_DB_NAME = 'robot_results.db'
+DEFAULT_APP_NAME = 'robothub'
 
 class ReaderOptions(object):
 
@@ -43,7 +44,10 @@ class ReaderOptions(object):
 
             ('-b', '--database', {'dest': 'db_file_path',
                                   'default': DEFAULT_DB_NAME,
-                                  'help': 'path to the SQLite database for test run results'})
+                                  'help': 'path to the SQLite database for test run results'}),
+            ('-a', '--application', {'dest': 'application_name',
+                                  'default': False,
+                                  'help': 'django application name for inserting data into tables'})
         ]
         for option in options:
             self._parser.add_option(option[0], option[1], **option[2])
@@ -83,3 +87,7 @@ class ReaderOptions(object):
     @property
     def include_keywords(self):
         return self._options.include_keywords
+
+    @property
+    def application_name(self):
+        return self._options.application_name

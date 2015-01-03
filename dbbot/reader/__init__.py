@@ -11,6 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .database_writer import DatabaseWriter
+from .database_writer import SQLLiteDatabaseWriter
 from .reader_options import ReaderOptions
 from .robot_results_parser import RobotResultsParser

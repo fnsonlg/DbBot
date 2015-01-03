@@ -100,19 +100,20 @@ class RobotResultsParser(object):
 
     def _parse_suite(self, suite, test_run_id, parent_suite_id=None):
         self._verbose('`--> Parsing suite: %s' % suite.name)
-        try:
-            suite_id = self._db.insert('suites', {
-                'suite_id': parent_suite_id,
-                'xml_id': suite.id,
-                'name': suite.name,
-                'source': suite.source,
-                'doc': suite.doc
-            })
-        except IntegrityError:
-            suite_id = self._db.fetch_id('suites', {
-                'name': suite.name,
-                'source': suite.source
-            })
+        # try:
+        suite_id = self._db.insert('suites', {
+            'suite_id': parent_suite_id,
+            'xml_id': suite.id,
+            'name': suite.name,
+            'source': suite.source,
+            'doc': suite.doc
+
+        })
+        # except IntegrityError:
+        #     suite_id = self._db.fetch_id('suites', {
+        #         'name': suite.name,
+        #         'source': suite.source
+        #     })
         self._parse_suite_status(test_run_id, suite_id, suite)
         self._parse_suites(suite, test_run_id, suite_id)
         self._parse_tests(suite.tests, test_run_id, suite_id)

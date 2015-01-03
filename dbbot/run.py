@@ -16,7 +16,7 @@ import os
 import sys
 
 sys.path.append(os.path.abspath(__file__ + '/../..'))
-from dbbot.reader import DatabaseWriter, ReaderOptions, RobotResultsParser
+from dbbot.reader import SQLLiteDatabaseWriter, ReaderOptions, RobotResultsParser
 from robot.errors import DataError
 
 
@@ -28,7 +28,8 @@ class DbBot(object):
         # '' for temporary database i.e. deleted after the connection is closed
         # see: http://www.sqlite.org/inmemorydb.html, section 'Temporary Databases'
         database_path = '' if self._options.dry_run else self._options.db_file_path
-        self._db = DatabaseWriter(database_path, verbose_stream)
+        application_path = self._options.application_name
+        self._db = SQLLiteDatabaseWriter(database_path, verbose_stream,application_path)
         self._parser = RobotResultsParser(
             self._options.include_keywords,
             self._db,
