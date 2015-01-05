@@ -33,7 +33,7 @@ class RobotResultsParser(object):
         test_run = ExecutionResult(xml_file, include_keywords=self._include_keywords)
         hash = self._hash(xml_file)
         try:
-            test_run_id = self._db.insert('test_runs', {
+            test_run_id = self._db.insert('test_run', {
                 'hash': hash,
                 'imported_at': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f'),
                 'source_file': test_run.source,
@@ -41,7 +41,7 @@ class RobotResultsParser(object):
                 'finished_at': self._format_robot_timestamp(test_run.suite.endtime)
             })
         except IntegrityError:
-            test_run_id = self._db.fetch_id('test_runs', {
+            test_run_id = self._db.fetch_id('test_run', {
                 'source_file': test_run.source,
                 'started_at': self._format_robot_timestamp(test_run.suite.starttime),
                 'finished_at': self._format_robot_timestamp(test_run.suite.endtime)
@@ -61,7 +61,7 @@ class RobotResultsParser(object):
         return hasher.hexdigest()
 
     def _parse_errors(self, errors, test_run_id):
-        self._db.insert_many_or_ignore('test_run_errors',
+        self._db.insert_many_or_ignore('test_run_error',
             ('test_run_id', 'level', 'timestamp', 'content'),
             [(test_run_id, error.level, self._format_robot_timestamp(error.timestamp), error.message)
             for error in errors]
@@ -101,7 +101,7 @@ class RobotResultsParser(object):
     def _parse_suite(self, suite, test_run_id, parent_suite_id=None):
         self._verbose('`--> Parsing suite: %s' % suite.name)
         # try:
-        suite_id = self._db.insert('suites', {
+        suite_id = self._db.insert('suite', {
             'suite_id': suite.id,
             'xml_id': suite.id,
             'name': suite.name,
@@ -137,7 +137,7 @@ class RobotResultsParser(object):
     def _parse_test(self, test, test_run_id, suite_id):
         self._verbose('  `--> Parsing test: %s' % test.name)
         try:
-            test_id = self._db.insert('tests', {
+            test_id = self._db.insert('test', {
                 'suite_id': suite_id,
                 'xml_id': test.id,
                 'name': test.name,
@@ -145,7 +145,7 @@ class RobotResultsParser(object):
                 'doc': test.doc
             })
         except IntegrityError:
-            test_id = self._db.fetch_id('tests', {
+            test_id = self._db.fetch_id('test', {
                 'suite_id': suite_id,
                 'name': test.name
             })
@@ -162,7 +162,7 @@ class RobotResultsParser(object):
         })
 
     def _parse_tags(self, tags, test_id):
-        self._db.insert_many_or_ignore('tags', ('test_id', 'content'),
+        self._db.insert_many_or_ignore('tag', ('test_id', 'content'),
             [(test_id, tag) for tag in tags]
         )
 
@@ -173,7 +173,7 @@ class RobotResultsParser(object):
 
     def _parse_keyword(self, keyword, test_run_id, suite_id, test_id, keyword_id):
         try:
-            keyword_id = self._db.insert('keywords', {
+            keyword_id = self._db.insert('keyword', {
                 'suite_id': suite_id,
                 'test_id': test_id,
                 'keyword_id': keyword_id,
@@ -183,7 +183,7 @@ class RobotResultsParser(object):
                 'doc': keyword.doc
             })
         except IntegrityError:
-            keyword_id = self._db.fetch_id('keywords', {
+            keyword_id = self._db.fetch_id('keyword', {
                 'name': keyword.name,
                 'type': keyword.type
             })
@@ -201,13 +201,13 @@ class RobotResultsParser(object):
         })
 
     def _parse_messages(self, messages, keyword_id):
-        self._db.insert_many_or_ignore('messages', ('keyword_id', 'level', 'timestamp', 'content'),
+        self._db.insert_many_or_ignore('message', ('keyword_id', 'level', 'timestamp', 'content'),
             [(keyword_id, message.level, self._format_robot_timestamp(message.timestamp),
             message.message) for message in messages]
         )
 
     def _parse_arguments(self, args, keyword_id):
-        self._db.insert_many_or_ignore('arguments', ('keyword_id', 'content'),
+        self._db.insert_many_or_ignore('argument', ('keyword_id', 'content'),
             [(keyword_id, arg) for arg in args]
         )
 

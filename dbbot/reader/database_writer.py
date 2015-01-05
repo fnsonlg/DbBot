@@ -24,24 +24,24 @@ class SQLLiteDatabaseWriter(RobotDatabase):
 
     def _init_schema(self):
         self._verbose('- Initializing database schema')
-        self._create_table_projects()
-        self._create_table_applications()
-        self._create_table_test_runs()
+        self._create_table_project()
+        self._create_table_application()
+        self._create_table_test_run()
         self._create_table_test_run_status()
         self._create_table_test_run_errors()
         self._create_table_tag_status()
-        self._create_table_suites()
+        self._create_table_suite()
         self._create_table_suite_status()
-        self._create_table_tests()
+        self._create_table_test()
         self._create_table_test_status()
-        self._create_table_keywords()
+        self._create_table_keyword()
         self._create_table_keyword_status()
-        self._create_table_messages()
-        self._create_table_tags()
-        self._create_table_arguments()
+        self._create_table_message()
+        self._create_table_tag()
+        self._create_table_argument()
 
-    def _create_table_test_runs(self):
-        self._create_table('test_runs', {
+    def _create_table_test_run(self):
+        self._create_table('test_run', {
             'hash': 'TEXT NOT NULL',
             'imported_at': 'DATETIME NOT NULL',
             'source_file': 'TEXT',
@@ -59,7 +59,7 @@ class SQLLiteDatabaseWriter(RobotDatabase):
         }, ('test_run_id', 'name'))
 
     def _create_table_test_run_errors(self):
-        self._create_table('test_run_errors', {
+        self._create_table('test_run_error', {
             'test_run_id': 'INTEGER NOT NULL REFERENCES test_runs',
             'level': 'TEXT NOT NULL',
             'timestamp': 'DATETIME NOT NULL',
@@ -76,8 +76,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             'passed': 'INTEGER NOT NULL',
         }, ('test_run_id', 'name'))
 
-    def _create_table_suites(self):
-        self._create_table('suites', {
+    def _create_table_suite(self):
+        self._create_table('suite', {
             'suite_id': 'INTEGER  NOT NULL REFERENCES suites',
             'xml_id': 'TEXT NOT NULL',
             'name': 'TEXT NOT NULL',
@@ -86,8 +86,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             'application_id': 'TEXT'
         }, ('name', 'source'))
 
-    def _create_table_applications(self):
-        self._create_table('applications', {
+    def _create_table_application(self):
+        self._create_table('application', {
             'application_id': 'INTEGER NOT NULL REFERENCES applications',
             'applicatoin_name': 'TEXT',
             'framework_name': 'TEXT',
@@ -96,8 +96,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             'project_id': 'INTEGER NOT NULL REFERENCES projects'
         })
 
-    def _create_table_projects(self):
-        self._create_table('projects', {
+    def _create_table_project(self):
+        self._create_table('project', {
             'project_id': 'INTEGER NOT NULL REFERENCES projects',
             'project_name': 'TEXT'
         })
@@ -112,8 +112,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             'status': 'TEXT NOT NULL'
         }, ('test_run_id', 'suite_id'))
 
-    def _create_table_tests(self):
-        self._create_table('tests', {
+    def _create_table_test(self):
+        self._create_table('test', {
             'suite_id': 'INTEGER NOT NULL REFERENCES suites',
             'xml_id': 'TEXT NOT NULL',
             'name': 'TEXT NOT NULL',
@@ -129,8 +129,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             'elapsed': 'INTEGER NOT NULL'
         }, ('test_run_id', 'test_id'))
 
-    def _create_table_keywords(self):
-        self._create_table('keywords', {
+    def _create_table_keyword(self):
+        self._create_table('keyword', {
             'suite_id': 'INTEGER REFERENCES suites',
             'test_id': 'INTEGER REFERENCES tests',
             'keyword_id': 'INTEGER REFERENCES keywords',
@@ -148,22 +148,22 @@ class SQLLiteDatabaseWriter(RobotDatabase):
             'elapsed': 'INTEGER NOT NULL'
         })
 
-    def _create_table_messages(self):
-        self._create_table('messages', {
+    def _create_table_message(self):
+        self._create_table('message', {
             'keyword_id': 'INTEGER NOT NULL REFERENCES keywords',
             'level': 'TEXT NOT NULL',
             'timestamp': 'DATETIME NOT NULL',
             'content': 'TEXT NOT NULL'
         }, ('keyword_id', 'level', 'content'))
 
-    def _create_table_tags(self):
-        self._create_table('tags', {
+    def _create_table_tag(self):
+        self._create_table('tag', {
             'test_id': 'INTEGER NOT NULL REFERENCES tests',
             'content': 'TEXT NOT NULL'
         }, ('test_id', 'content'))
 
-    def _create_table_arguments(self):
-        self._create_table('arguments', {
+    def _create_table_argument(self):
+        self._create_table('argument', {
             'keyword_id': 'INTEGER NOT NULL REFERENCES keywords',
             'content': 'TEXT NOT NULL'
         }, ('keyword_id', 'content'))
