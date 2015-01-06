@@ -114,7 +114,7 @@ class SQLLiteDatabaseWriter(RobotDatabase):
 
     def _create_table_test(self):
         self._create_table('test', {
-            'suite_id': 'INTEGER NOT NULL REFERENCES suites',
+            'suite_id': 'INTEGER NOT NULL REFERENCES suite',
             'xml_id': 'TEXT NOT NULL',
             'name': 'TEXT NOT NULL',
             'timeout': 'TEXT',
@@ -123,17 +123,17 @@ class SQLLiteDatabaseWriter(RobotDatabase):
 
     def _create_table_test_status(self):
         self._create_table('test_status', {
-            'test_run_id': 'INTEGER NOT NULL REFERENCES test_runs',
-            'test_id': 'INTEGER  NOT NULL REFERENCES tests',
+            'test_run_id': 'INTEGER NOT NULL REFERENCES test_run',
+            'test_id': 'INTEGER  NOT NULL REFERENCES test',
             'status': 'TEXT NOT NULL',
             'elapsed': 'INTEGER NOT NULL'
         }, ('test_run_id', 'test_id'))
 
     def _create_table_keyword(self):
         self._create_table('keyword', {
-            'suite_id': 'INTEGER REFERENCES suites',
-            'test_id': 'INTEGER REFERENCES tests',
-            'keyword_id': 'INTEGER REFERENCES keywords',
+            'suite_id': 'INTEGER REFERENCES suite',
+            'test_id': 'INTEGER REFERENCES test',
+            'keyword_id': 'INTEGER REFERENCES keyword',
             'name': 'TEXT NOT NULL',
             'type': 'TEXT NOT NULL',
             'timeout': 'TEXT',
@@ -142,15 +142,15 @@ class SQLLiteDatabaseWriter(RobotDatabase):
 
     def _create_table_keyword_status(self):
         self._create_table('keyword_status', {
-            'test_run_id': 'INTEGER NOT NULL REFERENCES test_runs',
-            'keyword_id': 'INTEGER NOT NULL REFERENCES keywords',
+            'test_run_id': 'INTEGER NOT NULL REFERENCES test_run',
+            'keyword_id': 'INTEGER NOT NULL REFERENCES keyword',
             'status': 'TEXT NOT NULL',
             'elapsed': 'INTEGER NOT NULL'
         })
 
     def _create_table_message(self):
         self._create_table('message', {
-            'keyword_id': 'INTEGER NOT NULL REFERENCES keywords',
+            'keyword_id': 'INTEGER NOT NULL REFERENCES keyword',
             'level': 'TEXT NOT NULL',
             'timestamp': 'DATETIME NOT NULL',
             'content': 'TEXT NOT NULL'
@@ -158,13 +158,13 @@ class SQLLiteDatabaseWriter(RobotDatabase):
 
     def _create_table_tag(self):
         self._create_table('tag', {
-            'test_id': 'INTEGER NOT NULL REFERENCES tests',
+            'test_id': 'INTEGER NOT NULL REFERENCES test',
             'content': 'TEXT NOT NULL'
         }, ('test_id', 'content'))
 
     def _create_table_argument(self):
         self._create_table('argument', {
-            'keyword_id': 'INTEGER NOT NULL REFERENCES keywords',
+            'keyword_id': 'INTEGER NOT NULL REFERENCES keyword',
             'content': 'TEXT NOT NULL'
         }, ('keyword_id', 'content'))
 
