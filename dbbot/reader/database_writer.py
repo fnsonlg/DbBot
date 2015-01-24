@@ -87,9 +87,8 @@ class SQLLiteDatabaseWriter(RobotDatabase):
         }, ('name', 'source'))
 
     def _create_table_application(self):
-        self._create_table('application', {
-            'application_id': 'INTEGER NOT NULL REFERENCES applications',
-            'applicatoin_name': 'TEXT',
+        self._create_table_text_id('application', {
+            'application_name': 'TEXT',
             'framework_name': 'TEXT',
             'jira_link': 'TEXT',
             'git_link': 'TEXT',
@@ -97,8 +96,7 @@ class SQLLiteDatabaseWriter(RobotDatabase):
         })
 
     def _create_table_project(self):
-        self._create_table('project', {
-            'project_id': 'INTEGER NOT NULL REFERENCES projects',
+        self._create_table_text_id('project', {
             'project_name': 'TEXT'
         })
 
@@ -170,6 +168,19 @@ class SQLLiteDatabaseWriter(RobotDatabase):
 
     def _create_table(self, table_name, columns, unique_columns=()):
         definitions = ['id INTEGER PRIMARY KEY']
+        for column_name, properties in columns.items():
+            definitions.append('%s %s' % (column_name, properties))
+        if unique_columns:
+            unique_column_names = ', '.join(unique_columns)
+            definitions.append('CONSTRAINT unique_%s UNIQUE (%s)' % (
+                table_name, unique_column_names)
+            )
+        table_name = self.application_name + "_" + table_name
+        sql_statement = 'CREATE TABLE IF NOT EXISTS %s (%s)' % (table_name, ', '.join(definitions))
+        self._connection.execute(sql_statement)
+
+    def _create_table_text_id(self, table_name, columns, unique_columns=()):
+        definitions = ['id TEXT PRIMARY KEY']
         for column_name, properties in columns.items():
             definitions.append('%s %s' % (column_name, properties))
         if unique_columns:
